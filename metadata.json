@@ -1,0 +1,6 @@
+{
+  "name": "AeroX Music",
+  "description": "A futuristic high-fidelity music streaming web app with curated playlists, high-fidelity audio, queue management, ambient lighting, glassmorphism, and synchronized lyrics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
