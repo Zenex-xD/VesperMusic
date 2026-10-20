@@ -81,16 +81,27 @@ export const DesktopPlayerBar: React.FC = () => {
     >
       {/* Left Column: Track Artwork & Info */}
       <div className="flex items-center gap-3 w-1/4 min-w-[220px]">
+        {/* Ultra-lightweight Audio Visualizer Badge (Zero image payload) */}
         <div
-          className="relative w-12 h-12 rounded-lg overflow-hidden bg-zinc-900 border border-white/[0.06] flex-shrink-0 cursor-pointer group"
+          className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#181820] to-[#0f0f14] border border-white/[0.08] flex-shrink-0 cursor-pointer group flex items-center justify-center shadow-sm hover:border-purple-500/40 transition-colors"
           onClick={() => setIsFullScreenOpen(true)}
+          title="Open Player Stage"
         >
-          <img
-            src={currentSong.artwork}
-            alt={currentSong.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          {isPlaying ? (
+            <div className="flex items-end justify-center gap-[3px] h-5 w-6">
+              <span className="w-1 bg-purple-400 rounded-full animate-soundbar-1" />
+              <span className="w-1 bg-indigo-400 rounded-full animate-soundbar-2" />
+              <span className="w-1 bg-violet-300 rounded-full animate-soundbar-3" />
+              <span className="w-1 bg-purple-500 rounded-full animate-soundbar-4" />
+            </div>
+          ) : (
+            <div className="w-6 h-6 rounded-full border border-purple-400/30 flex items-center justify-center text-purple-300">
+              <span className="text-[10px] font-bold tracking-tighter">
+                {currentSong.title.charAt(0).toUpperCase() || '♪'}
+              </span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Maximize2 className="w-3.5 h-3.5 text-white" />
           </div>
         </div>

@@ -40,7 +40,14 @@ export const LyricsDrawer: React.FC = () => {
 
       {/* Song Header Meta */}
       <div className="p-4 bg-white/[0.02] border-b border-white/5 flex items-center gap-3">
-        <img src={currentSong.artwork} alt={currentSong.title} className="w-12 h-12 rounded-xl object-cover" />
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#181820] to-[#0f0f14] border border-white/[0.08] flex items-center justify-center flex-shrink-0 shadow-inner">
+          <div className="flex items-end justify-center gap-[2.5px] h-4 w-5">
+            <span className="w-0.5 bg-purple-400 rounded-full animate-soundbar-1" />
+            <span className="w-0.5 bg-indigo-300 rounded-full animate-soundbar-2" />
+            <span className="w-0.5 bg-violet-400 rounded-full animate-soundbar-3" />
+            <span className="w-0.5 bg-purple-500 rounded-full animate-soundbar-4" />
+          </div>
+        </div>
         <div className="truncate">
           <p className="text-sm font-semibold text-white truncate">{currentSong.title}</p>
           <p className="text-xs text-zinc-400 truncate">{currentSong.artist}</p>

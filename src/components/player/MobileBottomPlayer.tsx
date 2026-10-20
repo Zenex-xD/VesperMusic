@@ -30,14 +30,23 @@ export const MobileBottomPlayer: React.FC = () => {
       onClick={() => setIsFullScreenOpen(true)}
     >
       <div className="relative rounded-xl bg-[#141418]/95 backdrop-blur-md border border-white/[0.08] p-2 shadow-xl flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-all overflow-hidden">
-        {/* Left: Artwork + Title + Artist */}
+        {/* Left: Lightweight Audio Indicator + Title + Artist */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="relative w-10 h-10 rounded-md overflow-hidden flex-shrink-0 bg-zinc-900 border border-white/[0.06]">
-            <img
-              src={currentSong.artwork}
-              alt={currentSong.title}
-              className="w-full h-full object-cover"
-            />
+          <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#181820] to-[#0f0f14] border border-white/[0.08] flex items-center justify-center shadow-inner">
+            {isPlaying ? (
+              <div className="flex items-end justify-center gap-[2px] h-4 w-5">
+                <span className="w-0.5 bg-purple-400 rounded-full animate-soundbar-1" />
+                <span className="w-0.5 bg-indigo-300 rounded-full animate-soundbar-2" />
+                <span className="w-0.5 bg-violet-400 rounded-full animate-soundbar-3" />
+                <span className="w-0.5 bg-purple-500 rounded-full animate-soundbar-4" />
+              </div>
+            ) : (
+              <div className="w-5 h-5 rounded-full border border-purple-400/30 flex items-center justify-center text-purple-300">
+                <span className="text-[9px] font-bold">
+                  {currentSong.title.charAt(0).toUpperCase() || '♪'}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col min-w-0 flex-1">

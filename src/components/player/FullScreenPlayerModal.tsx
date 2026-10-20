@@ -25,8 +25,6 @@ import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import { useAuthAndStorage } from '../../context/AuthAndStorageContext';
 import { formatDuration, formatRemaining } from '../../utils/formatters';
 
-const clientArtworkCache = new Map<string, string>();
-
 export const FullScreenPlayerModal: React.FC = () => {
   const {
     currentSong,
@@ -43,6 +41,7 @@ export const FullScreenPlayerModal: React.FC = () => {
     lyricsData,
     currentLyricIndex,
     isLyricsLoading,
+    audioFrequencyData,
     togglePlay,
     next,
     previous,
@@ -58,42 +57,8 @@ export const FullScreenPlayerModal: React.FC = () => {
 
   const { isFavorite, toggleFavorite } = useAuthAndStorage();
   const [activeTab, setActiveTab] = useState<'player' | 'lyrics'>('player');
-  const [resolvedArtwork, setResolvedArtwork] = useState<string | null>(null);
   const [showOptions, setShowOptions] = useState(false);
   const lyricsContainerRef = useRef<HTMLDivElement | null>(null);
-
-  // High-res artwork resolution
-  useEffect(() => {
-    if (!currentSong) return;
-    const art = currentSong.artwork || '';
-    const cleanKey = `${currentSong.title.toLowerCase().trim()}||${currentSong.artist.toLowerCase().trim()}`;
-
-    if (clientArtworkCache.has(cleanKey)) {
-      setResolvedArtwork(clientArtworkCache.get(cleanKey)!);
-      return;
-    }
-
-    if (art.includes('mzstatic.com') || art.includes('dzcdn.net')) {
-      setResolvedArtwork(art);
-      clientArtworkCache.set(cleanKey, art);
-      return;
-    }
-
-    if (art.includes('ytimg.com') || art.includes('hqdefault') || art.includes('mqdefault')) {
-      fetch(`/api/artwork/resolve?title=${encodeURIComponent(currentSong.title)}&artist=${encodeURIComponent(currentSong.artist)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data?.artwork) {
-            clientArtworkCache.set(cleanKey, data.artwork);
-            setResolvedArtwork(data.artwork);
-            currentSong.artwork = data.artwork;
-          }
-        })
-        .catch(() => {});
-    }
-  }, [currentSong?.id, currentSong?.title, currentSong?.artist]);
-
-  const displayArtwork = resolvedArtwork || currentSong?.artwork || '';
 
   // Auto-scroll lyrics container
   useEffect(() => {
@@ -194,15 +159,68 @@ export const FullScreenPlayerModal: React.FC = () => {
       <div className="relative z-10 flex-1 flex flex-col justify-center max-w-md w-full mx-auto px-6 py-2">
         {activeTab === 'player' ? (
           <>
-            {/* Album Artwork */}
-            <div className="relative my-auto flex flex-col items-center">
-              <div className="relative aspect-square w-full max-w-[320px] sm:max-w-[360px] rounded-2xl overflow-hidden shadow-2xl bg-zinc-900 border border-white/[0.08] flex items-center justify-center">
-                <img
-                  src={displayArtwork}
-                  alt={currentSong.title}
-                  loading="eager"
-                  className="w-full h-full object-cover select-none"
-                />
+            {/* Ultra-lightweight Zero-Image Hi-Fi Audio Stage */}
+            <div className="relative my-auto flex flex-col items-center justify-center py-2 sm:py-4">
+              {/* Spinning Vinyl Turntable Disc (Pure SVG/CSS - zero network payload) */}
+              <div className="relative aspect-square w-full max-w-[270px] sm:max-w-[320px] rounded-full shadow-2xl bg-[#0e0e12] border-2 border-white/[0.08] flex items-center justify-center select-none overflow-hidden group">
+                <div
+                  className={`absolute inset-0 rounded-full flex items-center justify-center transition-all ${
+                    isPlaying ? 'animate-spin-slow' : ''
+                  }`}
+                  style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
+                >
+                  {/* Concentric Audiophile Grooves */}
+                  <div className="absolute inset-3 rounded-full border border-white/[0.04]" />
+                  <div className="absolute inset-7 rounded-full border border-white/[0.03]" />
+                  <div className="absolute inset-12 rounded-full border border-white/[0.04]" />
+                  <div className="absolute inset-16 rounded-full border border-white/[0.03]" />
+                  <div className="absolute inset-20 rounded-full border border-white/[0.04]" />
+
+                  {/* Surface Light Sheen */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+
+                  {/* Center Vinyl Core */}
+                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-purple-900/60 via-zinc-900 to-indigo-950/60 border border-purple-500/30 flex flex-col items-center justify-center p-3 text-center shadow-lg">
+                    <span className="text-[9px] font-mono tracking-widest text-purple-400 font-semibold uppercase">
+                      AeroX Hi-Fi
+                    </span>
+                    <span className="text-xs font-bold text-white truncate max-w-[90px] mt-0.5">
+                      {currentSong.title}
+                    </span>
+                    <div className="mt-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                      <span className="text-[9px] font-mono text-zinc-400">FLAC/HD</span>
+                    </div>
+
+                    {/* Center Spindle Hole */}
+                    <div className="w-3.5 h-3.5 rounded-full bg-black border border-white/20 mt-1.5 shadow-inner flex items-center justify-center">
+                      <div className="w-1 h-1 rounded-full bg-white/40" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic Soundwave Spectrum Bars beneath vinyl */}
+              <div className="w-full max-w-[270px] sm:max-w-[320px] mt-5 flex items-end justify-between h-9 px-4 py-1.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                {Array.from({ length: 24 }).map((_, i) => {
+                  const seed = (Math.sin(i * 0.7 + currentTime * 4) + 1) / 2;
+                  const activeHeight = isPlaying
+                    ? Math.max(15, Math.min(100, (seed * 0.6 + audioFrequencyData * 0.4) * 100))
+                    : 15;
+                  return (
+                    <span
+                      key={i}
+                      className={`w-1 rounded-full transition-all duration-150 ${
+                        i % 3 === 0
+                          ? 'bg-purple-400/80'
+                          : i % 2 === 0
+                          ? 'bg-indigo-400/70'
+                          : 'bg-violet-300/60'
+                      }`}
+                      style={{ height: `${activeHeight}%` }}
+                    />
+                  );
+                })}
               </div>
             </div>
 
@@ -451,11 +469,13 @@ export const FullScreenPlayerModal: React.FC = () => {
 
             <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between">
               <div className="flex items-center gap-2 truncate">
-                <img
-                  src={displayArtwork}
-                  alt={currentSong.title}
-                  className="w-9 h-9 rounded-md object-cover"
-                />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#181820] to-[#0f0f14] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-end justify-center gap-[2px] h-3.5 w-4">
+                    <span className="w-0.5 bg-purple-400 rounded-full animate-soundbar-1" />
+                    <span className="w-0.5 bg-indigo-300 rounded-full animate-soundbar-2" />
+                    <span className="w-0.5 bg-violet-400 rounded-full animate-soundbar-3" />
+                  </div>
+                </div>
                 <div className="truncate">
                   <p className="text-xs font-medium text-white truncate">{currentSong.title}</p>
                   <p className="text-[11px] text-zinc-400 truncate">{currentSong.artist}</p>

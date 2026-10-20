@@ -40,9 +40,40 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Clean range input styling */
+/* Custom Range Input */
 input[type="range"] {
   accent-color: #a855f7;
+}
+
+/* Soundbar & Vinyl Animations for Zero-Image Lightweight Player */
+@keyframes soundbar {
+  0%, 100% { height: 18%; }
+  50% { height: 100%; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-soundbar-1 {
+  animation: soundbar 1.1s ease-in-out infinite;
+}
+
+.animate-soundbar-2 {
+  animation: soundbar 0.85s ease-in-out infinite 0.15s;
+}
+
+.animate-soundbar-3 {
+  animation: soundbar 1.3s ease-in-out infinite 0.3s;
+}
+
+.animate-soundbar-4 {
+  animation: soundbar 0.95s ease-in-out infinite 0.1s;
 }
 
 /* Text truncate line clamps */
@@ -68,3 +99,4 @@ input[type="range"] {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
