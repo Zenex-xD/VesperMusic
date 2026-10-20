@@ -15,6 +15,7 @@ import { SearchView } from './views/SearchView';
 import { LibraryView } from './views/LibraryView';
 import { PlaylistView } from './views/PlaylistView';
 import { SettingsView } from './views/SettingsView';
+import { ProfileView } from './views/ProfileView';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<string>('home');
@@ -134,6 +135,7 @@ const AppContent: React.FC = () => {
             <PlaylistView playlistId={viewParams.id} onNavigate={handleNavigate} />
           )}
           {currentView === 'settings' && <SettingsView />}
+          {currentView === 'profile' && <ProfileView onNavigate={handleNavigate} />}
         </main>
 
         {/* Desktop Bottom Player Bar */}
@@ -156,7 +158,7 @@ const AppContent: React.FC = () => {
       <QueueDrawer />
 
       {/* Modals (Playlist creation, adding, share song, profile switcher) */}
-      <ModalsContainer />
+      <ModalsContainer onNavigate={handleNavigate} />
     </div>
   );
 };

@@ -98,9 +98,9 @@ export const PlaylistView: React.FC<PlaylistViewProps> = ({ playlistId, onNaviga
       </button>
 
       {/* Playlist Hero Banner */}
-      <div className="relative rounded-3xl overflow-hidden p-6 sm:p-8 bg-black border border-white/10 shadow-2xl">
+      <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8 bg-[#121216]/80 border border-white/[0.08]">
         <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-end gap-6">
-          <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-2xl overflow-hidden shadow-2xl shadow-black/80 bg-black flex-shrink-0 border border-white/10">
+          <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-xl overflow-hidden shadow-xl bg-zinc-900 flex-shrink-0 border border-white/[0.08]">
             {playlist.coverUrl ? (
               <img src={playlist.coverUrl} alt={playlist.title} className="w-full h-full object-cover" />
             ) : (

@@ -61,9 +61,9 @@ export const LyricsDrawer: React.FC = () => {
                 key={idx}
                 id={`drawer-lyric-${idx}`}
                 onClick={() => seek(line.time)}
-                className={`cursor-pointer transition-all duration-300 ${
+                className={`cursor-pointer transition-colors duration-150 select-none ${
                   isActive
-                    ? 'text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-indigo-200 scale-105 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]'
+                    ? 'text-lg font-bold text-white'
                     : 'text-sm font-medium text-zinc-500 hover:text-zinc-300'
                 }`}
               >

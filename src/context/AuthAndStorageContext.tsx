@@ -202,6 +202,8 @@ interface AuthContextType {
   updateUserSettings: (settings: Partial<UserSettings>) => void;
   exportData: () => string;
   importData: (jsonStr: string) => boolean;
+  updateProfile: (data: Partial<Pick<UserProfile, 'name' | 'avatar'>>) => void;
+  deleteProfile: (userId: string) => void;
   showToast: (message: string, type?: 'success' | 'info' | 'error') => void;
 }
 
@@ -456,6 +458,29 @@ export const AuthAndStorageProvider: React.FC<{ children: React.ReactNode }> = (
     return false;
   };
 
+  const updateProfile = (data: Partial<Pick<UserProfile, 'name' | 'avatar'>>) => {
+    updateCurrentUser(user => ({
+      ...user,
+      name: data.name !== undefined && data.name.trim() ? data.name.trim() : user.name,
+      avatar: data.avatar !== undefined && data.avatar.trim() ? data.avatar.trim() : user.avatar,
+    }));
+    showToast('Profile updated successfully', 'success');
+  };
+
+  const deleteProfile = (userId: string) => {
+    if (users.length <= 1) {
+      showToast('Cannot delete the only profile', 'error');
+      return;
+    }
+    const toDelete = users.find(u => u.id === userId);
+    const remaining = users.filter(u => u.id !== userId);
+    setUsers(remaining);
+    if (currentUserId === userId) {
+      setCurrentUserId(remaining[0].id);
+    }
+    showToast(`Profile "${toDelete?.name || 'User'}" removed`, 'info');
+  };
+
   return (
     <AuthAndStorageContext.Provider
       value={{
@@ -463,6 +488,8 @@ export const AuthAndStorageProvider: React.FC<{ children: React.ReactNode }> = (
         allUsers: users,
         switchUser,
         createNewProfile,
+        updateProfile,
+        deleteProfile,
         toggleFavorite,
         isFavorite,
         addToHistory,

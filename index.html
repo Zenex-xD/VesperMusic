@@ -3,10 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script>
+      // Gracefully silence Vite client WebSocket / HMR connection errors in preview iframe
+      window.addEventListener('error', function(event) {
+        if (
+          event?.filename?.includes('@vite/client') ||
+          (event?.message && (
+            event.message.includes('WebSocket') ||
+            event.message.includes('vite') ||
+            event.message.includes('failed to fetch')
+          ))
+        ) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          return true;
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', function(event) {
+        var reason = event?.reason;
+        var msg = (reason && (reason.message || reason.stack || String(reason))) || '';
+        if (
+          msg.includes('@vite/client') ||
+          msg.includes('WebSocket') ||
+          msg.includes('vite')
+        ) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+        }
+      });
+    </script>
     <title>AeroX Music</title>
-    <meta name="description" content="A futuristic high-fidelity music streaming web app with curated playlists, high-fidelity audio, queue management, ambient lighting, glassmorphism, and synchronized lyrics." />
+    <meta name="description" content="A premium high-fidelity music streaming application with curated playlists, loss-free audio playback, queue management, synchronized lyrics, and AutoMix." />
     <meta property="og:title" content="AeroX Music" />
-    <meta property="og:description" content="A futuristic high-fidelity music streaming web app with curated playlists, high-fidelity audio, queue management, ambient lighting, glassmorphism, and synchronized lyrics." />
+    <meta property="og:description" content="A premium high-fidelity music streaming application with curated playlists, loss-free audio playback, queue management, synchronized lyrics, and AutoMix." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

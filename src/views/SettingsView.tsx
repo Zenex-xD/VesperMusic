@@ -91,7 +91,7 @@ export const SettingsView: React.FC = () => {
         {/* ========================================================= */}
         <section
           id="setting-card-audio-quality"
-          className="rounded-2xl bg-zinc-900/70 border border-white/[0.08] p-6 backdrop-blur-md shadow-xl"
+          className="rounded-xl bg-[#141418] border border-white/[0.08] p-5 shadow-sm"
         >
           <div className="flex items-start gap-3 mb-5">
             <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0">

@@ -3,8 +3,13 @@ import { X, Plus, Check, Share2, Copy, UserCheck, Sparkles, Music2, ListMusic, S
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import { useAuthAndStorage } from '../../context/AuthAndStorageContext';
 import { formatDuration } from '../../utils/formatters';
+import { ProfileModal } from './ProfileModal';
 
-export const ModalsContainer: React.FC = () => {
+interface ModalsContainerProps {
+  onNavigate?: (view: string, params?: { id?: string }) => void;
+}
+
+export const ModalsContainer: React.FC<ModalsContainerProps> = ({ onNavigate }) => {
   const { activeModal, modalTargetSong, closeModal, openModal } = useMusicPlayer();
   const {
     currentUser,
@@ -340,7 +345,10 @@ export const ModalsContainer: React.FC = () => {
         </div>
       )}
 
-      {/* Profile modal is disabled/hidden as requested */}
+      {/* 4. Profile Modal */}
+      {activeModal === 'profile' && (
+        <ProfileModal onClose={closeModal} onNavigate={onNavigate} />
+      )}
     </div>
   );
 };

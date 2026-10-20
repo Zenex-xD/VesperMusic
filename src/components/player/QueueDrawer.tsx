@@ -57,11 +57,11 @@ export const QueueDrawer: React.FC = () => {
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-purple-400 mb-2">
               Now Playing
             </h4>
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-purple-950/40 border border-purple-500/30">
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08]">
               <img
                 src={currentSong.artwork}
                 alt={currentSong.title}
-                className="w-12 h-12 rounded-xl object-cover"
+                className="w-11 h-11 rounded-lg object-cover flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-white truncate">{currentSong.title}</p>

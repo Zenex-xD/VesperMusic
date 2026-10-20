@@ -40,11 +40,11 @@ export const SongCard: React.FC<SongCardProps> = ({
   return (
     <div
       id={`song-card-${song.id}`}
-      className="group relative flex-shrink-0 w-44 md:w-52 p-3 rounded-2xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.04] hover:border-purple-500/30 transition-all duration-300 cursor-pointer flex flex-col"
+      className="group relative flex-shrink-0 w-36 sm:w-44 p-2.5 rounded-xl bg-transparent hover:bg-white/[0.04] transition-all duration-200 cursor-pointer flex flex-col"
       onClick={handlePlayClick}
     >
       {/* Artwork container */}
-      <div className="relative aspect-square w-full rounded-xl overflow-hidden mb-3 bg-black shadow-lg shadow-black/40">
+      <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-zinc-900 border border-white/[0.06] shadow-sm">
         <img
           src={song.artwork}
           alt={song.title}
@@ -52,54 +52,46 @@ export const SongCard: React.FC<SongCardProps> = ({
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src = 'https://i.ytimg.com/vi/BddP6PYo2gs/hqdefault.jpg';
           }}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-
-        {/* Ambient glow behind */}
-        <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-xl pointer-events-none"
-          style={{ backgroundColor: song.color || '#8b5cf6' }}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
         {/* Play Overlay Button */}
         <div
-          className={`absolute bottom-2.5 right-2.5 w-11 h-11 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
+          className={`absolute bottom-2 right-2 w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-200 ${
             isPlayingCurrent
-              ? 'bg-purple-500 text-white scale-100 opacity-100 shadow-purple-500/40'
+              ? 'bg-purple-600 text-white scale-100 opacity-100'
               : isCurrent
               ? 'bg-purple-600 text-white scale-100 opacity-100'
-              : 'bg-white text-black opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 hover:scale-105'
+              : 'bg-white text-black opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 hover:scale-105'
           }`}
           onClick={handlePlayClick}
         >
           {isPlayingCurrent ? (
-            <Pause className="w-5 h-5 fill-current" />
+            <Pause className="w-4 h-4 fill-current" />
           ) : (
-            <Play className="w-5 h-5 fill-current ml-0.5" />
+            <Play className="w-4 h-4 fill-current ml-0.5" />
           )}
         </div>
 
-        {/* Lossless/Hi-Res Badge */}
+        {/* Lossless Tag */}
         {song.isLossless && (
-          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-semibold tracking-wider text-purple-300">
-            HI-RES
+          <div className="absolute top-1.5 left-1.5 px-1 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[9px] font-semibold tracking-wider text-zinc-300">
+            LOSSLESS
           </div>
         )}
       </div>
 
       {/* Title & Artist */}
-      <div className="flex flex-col flex-grow">
-        <div className="flex items-center justify-between gap-1">
-          <h4
-            className={`font-semibold text-sm line-clamp-1 ${
-              isCurrent ? 'text-purple-400' : 'text-zinc-100 group-hover:text-white'
-            }`}
-          >
-            {cleanSongTitle(song.title)}
-          </h4>
-        </div>
+      <div className="flex flex-col mt-2 min-w-0">
+        <h4
+          className={`font-medium text-xs sm:text-sm truncate leading-tight ${
+            isCurrent ? 'text-purple-400' : 'text-zinc-100 group-hover:text-white'
+          }`}
+        >
+          {cleanSongTitle(song.title)}
+        </h4>
         <p
-          className="text-xs text-zinc-400 line-clamp-1 hover:text-zinc-200 transition-colors mt-0.5 cursor-pointer"
+          className="text-[11px] sm:text-xs text-zinc-400 truncate mt-0.5 hover:text-zinc-200 transition-colors cursor-pointer"
           onClick={(e) => {
             if (onNavigateArtist && (song.artistId || song.artist)) {
               e.stopPropagation();
@@ -109,83 +101,6 @@ export const SongCard: React.FC<SongCardProps> = ({
         >
           {song.artist}
         </p>
-      </div>
-
-      {/* Action triggers */}
-      <div className="mt-2 pt-2 border-t border-white/[0.04] flex items-center justify-between text-zinc-400 text-xs">
-        <span className="text-[11px] text-zinc-500">{formatDuration(song.duration)}</span>
-        
-        <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-          <button
-            id={`fav-btn-${song.id}`}
-            title="Favorite"
-            onClick={() => toggleFavorite(song.id)}
-            className={`p-1.5 rounded-full hover:bg-white/10 transition-colors ${
-              favorited ? 'text-pink-500 fill-pink-500' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <Heart className={`w-3.5 h-3.5 ${favorited ? 'fill-pink-500' : ''}`} />
-          </button>
-
-          <div className="relative">
-            <button
-              id={`menu-btn-${song.id}`}
-              title="More options"
-              onClick={() => setShowMenu(!showMenu)}
-              className="p-1.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-zinc-200 transition-colors"
-            >
-              <MoreVertical className="w-3.5 h-3.5" />
-            </button>
-
-            {showMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 bottom-full mb-1 w-44 rounded-xl bg-black border border-white/10 shadow-2xl p-1.5 z-50 text-xs text-zinc-200 space-y-0.5">
-                  <button
-                    onClick={() => {
-                      addToQueue(song);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
-                  >
-                    <ListPlus className="w-3.5 h-3.5 text-zinc-400" />
-                    Add to Queue
-                  </button>
-                  <button
-                    onClick={() => {
-                      playNextInQueue(song);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
-                  >
-                    <Disc3 className="w-3.5 h-3.5 text-zinc-400" />
-                    Play Next
-                  </button>
-                  <button
-                    onClick={() => {
-                      openModal('playlist', song);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5 text-zinc-400" />
-                    Add to Playlist
-                  </button>
-                  <button
-                    onClick={() => {
-                      openModal('share', song);
-                      setShowMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
-                  >
-                    <Share2 className="w-3.5 h-3.5 text-zinc-400" />
-                    Share Song
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -230,23 +145,23 @@ export const SongRow: React.FC<SongRowProps> = ({
     <div
       id={`song-row-${song.id}`}
       onClick={handleRowClick}
-      className={`group relative flex items-center gap-3 md:gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
+      className={`group relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
         isCurrent
-          ? 'bg-purple-900/20 border border-purple-500/30 text-purple-200'
-          : 'hover:bg-white/[0.04] border border-transparent text-zinc-300 hover:text-zinc-100'
+          ? 'bg-purple-950/20 text-purple-200'
+          : 'hover:bg-white/[0.04] text-zinc-300 hover:text-zinc-100'
       }`}
     >
       {/* Index or Play icon */}
       {showIndex && (
-        <div className="w-6 text-center text-xs font-mono text-zinc-500 flex-shrink-0 flex items-center justify-center">
+        <div className="w-5 text-center text-xs font-mono text-zinc-400 flex-shrink-0 flex items-center justify-center">
           {isPlayingCurrent ? (
-            <div className="flex items-end gap-0.5 h-3.5">
+            <div className="flex items-end gap-0.5 h-3">
               <span className="w-0.5 h-3 bg-purple-400 animate-pulse" />
               <span className="w-0.5 h-2 bg-purple-400 animate-pulse delay-75" />
-              <span className="w-0.5 h-3.5 bg-purple-400 animate-pulse delay-150" />
+              <span className="w-0.5 h-2.5 bg-purple-400 animate-pulse delay-150" />
             </div>
           ) : isCurrent ? (
-            <span className="text-purple-400">●</span>
+            <span className="text-purple-400 text-sm">▶</span>
           ) : (
             <span className="group-hover:hidden">{index !== undefined ? index + 1 : '•'}</span>
           )}
@@ -257,155 +172,139 @@ export const SongRow: React.FC<SongRowProps> = ({
       )}
 
       {/* Thumbnail Artwork */}
-      <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 bg-zinc-900">
+      <div className="relative w-10 h-10 rounded-md overflow-hidden flex-shrink-0 bg-zinc-900 border border-white/[0.06]">
         <img
           src={song.artwork}
           alt={song.title}
-          className="w-full h-full object-cover"
           loading="lazy"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = 'https://i.ytimg.com/vi/BddP6PYo2gs/hqdefault.jpg';
-          }}
+          className="w-full h-full object-cover"
         />
-        {isCurrent && (
-          <div className="absolute inset-0 bg-purple-900/40 backdrop-blur-[2px] flex items-center justify-center">
-            {isPlayingCurrent ? (
-              <Pause className="w-4 h-4 fill-white text-white" />
-            ) : (
-              <Play className="w-4 h-4 fill-white text-white ml-0.5" />
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Title & Artist info */}
-      <div className="flex-1 min-w-0">
-        <h4 className={`text-sm font-medium line-clamp-1 ${isCurrent ? 'text-purple-300 font-semibold' : 'text-zinc-100'}`}>
+      {/* Title & Artist */}
+      <div className="min-w-0 flex-1 flex flex-col justify-center">
+        <h4
+          className={`font-medium text-xs sm:text-sm truncate ${
+            isCurrent ? 'text-purple-300' : 'text-zinc-100 group-hover:text-white'
+          }`}
+        >
           {cleanSongTitle(song.title)}
         </h4>
-        <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
-          <span
-            className="hover:text-zinc-200 transition-colors line-clamp-1 cursor-pointer"
-            onClick={e => {
-              if (onNavigateArtist && (song.artistId || song.artist)) {
-                e.stopPropagation();
-                onNavigateArtist(song.artistId || song.artist);
-              }
-            }}
-          >
-            {song.artist}
-          </span>
-          {song.isLossless && (
-            <span className="text-[9px] font-bold px-1 rounded bg-purple-950/80 border border-purple-800/40 text-purple-300">
-              HD
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Album name if wide screen */}
-      {showAlbum && (song.album || song.albumId) && (
-        <div
-          className="hidden md:block flex-1 text-xs text-zinc-400 line-clamp-1 hover:text-zinc-200 transition-colors cursor-pointer"
-          onClick={e => {
-            if (onNavigateAlbum) {
+        <span
+          className="text-xs text-zinc-400 truncate hover:text-zinc-200 transition-colors cursor-pointer"
+          onClick={(e) => {
+            if (onNavigateArtist && (song.artistId || song.artist)) {
               e.stopPropagation();
-              onNavigateAlbum(song.albumId || song.album || '');
+              onNavigateArtist(song.artistId || song.artist);
             }
           }}
         >
-          {song.album}
+          {song.artist}
+        </span>
+      </div>
+
+      {/* Album Title (Desktop Only) */}
+      {showAlbum && (
+        <div
+          className="hidden md:block w-1/3 min-w-0 text-xs text-zinc-400 truncate hover:text-zinc-200 transition-colors"
+          onClick={(e) => {
+            if (onNavigateAlbum && (song.albumId || song.album)) {
+              e.stopPropagation();
+              onNavigateAlbum(song.albumId || song.album);
+            }
+          }}
+        >
+          {song.album || '—'}
         </div>
       )}
 
-      {/* Duration */}
-      <div className="text-xs text-zinc-400 font-mono hidden sm:block">
-        {formatDuration(song.duration)}
-      </div>
-
-      {/* Quick Add to Playlist Button */}
-      <button
-        title="Add to playlist"
-        onClick={e => {
-          e.stopPropagation();
-          openModal('playlist', song);
-        }}
-        className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-purple-300 transition-colors opacity-0 group-hover:opacity-100"
-      >
-        <Plus className="w-4 h-4" />
-      </button>
-
-      {/* Favorite Button */}
-      <button
-        title="Favorite"
-        onClick={e => {
-          e.stopPropagation();
-          toggleFavorite(song.id);
-        }}
-        className={`p-2 rounded-full hover:bg-white/10 transition-colors ${
-          favorited ? 'text-pink-500' : 'text-zinc-400 opacity-0 group-hover:opacity-100'
-        }`}
-      >
-        <Heart className={`w-4 h-4 ${favorited ? 'fill-pink-500' : ''}`} />
-      </button>
-
-      {/* More menu */}
-      <div className="relative" onClick={e => e.stopPropagation()}>
+      {/* Duration & Actions */}
+      <div className="flex items-center gap-2 flex-shrink-0">
         <button
-          title="More options"
-          onClick={() => setShowMenu(!showMenu)}
-          className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-zinc-200 transition-colors"
+          id={`fav-btn-${song.id}`}
+          title="Favorite"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(song.id);
+          }}
+          className={`p-1.5 rounded-full hover:bg-white/10 transition-colors ${
+            favorited
+              ? 'text-pink-500 fill-pink-500'
+              : 'text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-zinc-200'
+          }`}
         >
-          <MoreVertical className="w-4 h-4" />
+          <Heart className={`w-3.5 h-3.5 ${favorited ? 'fill-pink-500' : ''}`} />
         </button>
 
-        {showMenu && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-            <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-black border border-white/10 shadow-2xl p-1.5 z-50 text-xs text-zinc-200 space-y-0.5">
-              <button
-                onClick={() => {
-                  addToQueue(song);
-                  setShowMenu(false);
-                }}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
+        <span className="text-xs text-zinc-400 font-mono w-10 text-right">
+          {formatDuration(song.duration)}
+        </span>
+
+        {/* Options dropdown */}
+        <div className="relative">
+          <button
+            id={`menu-btn-${song.id}`}
+            title="More options"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu(!showMenu);
+            }}
+            className="p-1.5 rounded-full hover:bg-white/10 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-zinc-200 transition-colors"
+          >
+            <MoreVertical className="w-3.5 h-3.5" />
+          </button>
+
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+              <div
+                className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-[#141418] border border-white/10 shadow-2xl p-1.5 z-50 text-xs text-zinc-200 space-y-0.5"
+                onClick={(e) => e.stopPropagation()}
               >
-                <ListPlus className="w-3.5 h-3.5 text-zinc-400" />
-                Add to Queue
-              </button>
-              <button
-                onClick={() => {
-                  playNextInQueue(song);
-                  setShowMenu(false);
-                }}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
-              >
-                <Disc3 className="w-3.5 h-3.5 text-zinc-400" />
-                Play Next
-              </button>
-              <button
-                onClick={() => {
-                  openModal('playlist', song);
-                  setShowMenu(false);
-                }}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5 text-zinc-400" />
-                Add to Playlist
-              </button>
-              <button
-                onClick={() => {
-                  openModal('share', song);
-                  setShowMenu(false);
-                }}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
-              >
-                <Share2 className="w-3.5 h-3.5 text-zinc-400" />
-                Share Song
-              </button>
-            </div>
-          </>
-        )}
+                <button
+                  onClick={() => {
+                    addToQueue(song);
+                    setShowMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
+                >
+                  <ListPlus className="w-3.5 h-3.5 text-zinc-400" />
+                  Add to Queue
+                </button>
+                <button
+                  onClick={() => {
+                    playNextInQueue(song);
+                    setShowMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
+                >
+                  <Disc3 className="w-3.5 h-3.5 text-zinc-400" />
+                  Play Next
+                </button>
+                <button
+                  onClick={() => {
+                    openModal('playlist', song);
+                    setShowMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5 text-zinc-400" />
+                  Add to Playlist
+                </button>
+                <button
+                  onClick={() => {
+                    openModal('share', song);
+                    setShowMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/10 text-left transition-colors"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-zinc-400" />
+                  Share Song
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

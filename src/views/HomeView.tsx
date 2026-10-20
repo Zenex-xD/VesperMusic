@@ -2,15 +2,10 @@ import React, { useEffect, useState, useMemo } from 'react';
 import {
   Play,
   Pause,
-  Zap,
-  Clock,
-  Heart,
   ChevronRight,
   MoreHorizontal,
   Search,
-  Radio,
   Bell,
-  Waves,
   Sparkles,
 } from 'lucide-react';
 import { Song } from '../types/music';
@@ -18,6 +13,8 @@ import { musicService } from '../services/musicService';
 import { cleanSongTitle } from '../utils/formatters';
 import { useAuthAndStorage } from '../context/AuthAndStorageContext';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
+import { AeroXLogo } from '../components/common/AeroXLogo';
+import { SongCard } from '../components/cards/SongCard';
 
 interface HomeViewProps {
   onNavigate: (view: string, params?: { id?: string }) => void;
@@ -39,8 +36,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     currentSong,
     isPlaying,
     togglePlay,
-    currentTime,
-    duration,
     openModal,
   } = useMusicPlayer();
 
@@ -58,7 +53,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     };
   }, []);
 
-  // Time-of-day greeting (matching "Good evening" in screenshot)
+  // Time-of-day greeting
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) return 'Good morning';
@@ -66,35 +61,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     return 'Good evening';
   }, []);
 
-  // Continue Listening Hero Song (default to Blinding Lights from screenshot if not already active)
-  const heroSong: Song = useMemo(() => {
-    if (currentSong) return currentSong;
-    const blindingLights = allSongs.find(
-      (s) => s.id === 'vesper-blinding-lights' || s.title.includes('Blinding Lights')
-    );
-    return (
-      blindingLights ||
-      allSongs[0] || {
-        id: 'vesper-blinding-lights',
-        title: 'Blinding Lights',
-        artist: 'The Weeknd',
-        album: 'After Hours',
-        artwork:
-          'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg',
-        duration: 200,
-        playbackId: '4NRXx6U8ABQ',
-        playbackSource: 'youtube',
-      }
-    );
-  }, [currentSong, allSongs]);
-
-  const isHeroPlaying = currentSong?.id === heroSong.id && isPlaying;
-
-  // Screenshot Exact Quick Picks (+ additional top hits for smooth horizontal scroll):
-  // 1. Masakali 2.0 - Arijit Singh
-  // 2. Calm Down - Rema
-  // 3. Snooze - SZA
-  // 4. One Dance - Drake
+  // Curated Quick Picks
   const quickPicks: Song[] = useMemo(() => {
     const priorityIds = [
       'vesper-masakali-2',
@@ -102,7 +69,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
       'vesper-snooze',
       'vesper-one-dance',
       'vesper-blinding-lights',
-      'itunes-track-1440871441', // Starboy
+      'itunes-track-1440871441',
       'curated-kesariya',
       'curated-saiyaara',
       'curated-lover',
@@ -115,7 +82,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
       if (found) matched.push(found);
     }
 
-    // Default screenshot 4 tracks if catalog is still resolving
     const defaults: Song[] = [
       {
         id: 'vesper-masakali-2',
@@ -167,7 +133,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
       return matched;
     }
 
-    // Merge matched with defaults, preserving priority order
     const seen = new Set<string>();
     const res: Song[] = [];
     for (const s of [...matched, ...defaults]) {
@@ -179,13 +144,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     return res;
   }, [allSongs]);
 
-  // REAL-TIME Recently Played:
-  // Automatically responds whenever the user plays any song (via currentUser.history).
-  // Defaults to the exact 4 screenshot tracks if history is fresh:
-  // 1. After Hours - The Weeknd
-  // 2. Ctrl - SZA
-  // 3. ? (Deluxe) - XXXTENTACION
-  // 4. Dawn FM - The Weeknd
+  // Real-time Recently Played list
   const recentlyPlayed: Song[] = useMemo(() => {
     const historySongs = (currentUser?.history || [])
       .map((h) => h?.song)
@@ -250,8 +209,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     ];
 
     const baseDefaults = catalogDefaults.length >= 4 ? catalogDefaults : fallbackDefaults;
-
-    // Real-time playback history takes absolute priority at the front!
     const seen = new Set<string>();
     const list: Song[] = [];
 
@@ -272,57 +229,68 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     return list;
   }, [currentUser?.history, allSongs]);
 
-  // Screenshot Exact "Made For You" Mix Cards (+ extra mixes for rich horizontal scrolling):
-  // 1. Daily Mix 1 (Purple)
-  // 2. Chill Mix (Teal/Cyan)
-  // 3. Focus Music Mix (Magenta/Purple)
-  // 4. Late Night Mix (Midnight Blue)
+  // Jump Back In shelf (Top 6 most accessible tracks)
+  const jumpBackInSongs: Song[] = useMemo(() => {
+    const combined = [...recentlyPlayed, ...quickPicks];
+    const seen = new Set<string>();
+    const res: Song[] = [];
+    for (const s of combined) {
+      if (!seen.has(s.id)) {
+        seen.add(s.id);
+        res.push(s);
+      }
+      if (res.length >= 6) break;
+    }
+    return res;
+  }, [recentlyPlayed, quickPicks]);
+
+  // Editorial Curated Mixes
   const madeForYouMixes: MixItem[] = [
     {
       id: 'mix-daily-1',
       title: 'Daily Mix 1',
-      subtitle: 'Made for you',
-      gradient: 'from-indigo-950 via-purple-900/60 to-slate-950',
-      accentColor: '#8b5cf6',
+      subtitle: 'The Weeknd, Rema, Arijit Singh',
+      gradient: 'from-[#1c142b] to-[#120f1c]',
+      accentColor: '#a855f7',
       songIds: ['vesper-blinding-lights', 'vesper-masakali-2', 'vesper-calm-down'],
     },
     {
       id: 'mix-chill',
       title: 'Chill Mix',
-      subtitle: 'Made for you',
-      gradient: 'from-cyan-950 via-teal-900/50 to-slate-950',
+      subtitle: 'SZA, Rema, Drake',
+      gradient: 'from-[#0e1d24] to-[#0c1216]',
       accentColor: '#06b6d4',
       songIds: ['vesper-snooze', 'vesper-ctrl', 'vesper-calm-down'],
     },
     {
       id: 'mix-focus',
-      title: 'Focus Music Mix',
-      subtitle: 'Made for you',
-      gradient: 'from-purple-950 via-fuchsia-900/40 to-slate-950',
+      title: 'Deep Focus',
+      subtitle: 'Ambient, Instrumentals, Lo-Fi',
+      gradient: 'from-[#1b1528] to-[#110e1a]',
       accentColor: '#d946ef',
       songIds: ['vesper-after-hours', 'vesper-deluxe-x', 'vesper-dawn-fm'],
     },
     {
       id: 'mix-late-night',
-      title: 'Late Night Mix',
-      subtitle: 'Made for you',
-      gradient: 'from-blue-950 via-indigo-950/60 to-slate-950',
+      title: 'Late Night Vibes',
+      subtitle: 'Drake, The Weeknd, Melodies',
+      gradient: 'from-[#11192e] to-[#0c101d]',
       accentColor: '#3b82f6',
       songIds: ['vesper-one-dance', 'vesper-blinding-lights', 'vesper-after-hours'],
     },
     {
-      id: 'mix-bollywood-retro',
-      title: 'Bollywood Pop',
-      subtitle: 'Made for you',
-      gradient: 'from-amber-950 via-orange-900/50 to-slate-950',
-      accentColor: '#f59e0b',
+      id: 'mix-bollywood',
+      title: 'Bollywood Hits',
+      subtitle: 'Arijit Singh, Pritam, Atif Aslam',
+      gradient: 'from-[#261710] to-[#140e0b]',
+      accentColor: '#f97316',
       songIds: ['vesper-masakali-2', 'curated-kesariya', 'curated-saiyaara'],
     },
     {
       id: 'mix-acoustic',
-      title: 'Acoustic Vibe',
-      subtitle: 'Made for you',
-      gradient: 'from-emerald-950 via-teal-900/50 to-slate-950',
+      title: 'Acoustic Soul',
+      subtitle: 'Unplugged guitar, gentle vocals',
+      gradient: 'from-[#10221c] to-[#0b1411]',
       accentColor: '#10b981',
       songIds: ['curated-lover', 'vesper-snooze', 'vesper-ctrl'],
     },
@@ -340,186 +308,124 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
     }
   };
 
-  // Hero Card Time Display
-  const heroCurrentTime = isHeroPlaying && duration > 0 ? currentTime : 134; // 2:14
-  const heroDuration = heroSong.duration || 200; // 3:20
-  const heroProgress = Math.min(100, Math.max(0, (heroCurrentTime / heroDuration) * 100));
-
-  const formatHeroTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-
   return (
-    <div className="space-y-7 pb-36 max-w-4xl mx-auto animate-in fade-in duration-300 select-none">
-      {/* 1. Header Bar (Desktop only, mobile handled by MobileHeader) */}
-      <header className="hidden md:flex items-center justify-between pt-1 pb-2">
-        <div
-          onClick={() => onNavigate('home')}
-          className="flex items-center gap-2.5 cursor-pointer group"
-        >
-          <div className="w-9 h-9 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-lg shadow-purple-600/40 group-hover:scale-105 transition-transform">
-            <Radio className="w-5 h-5" />
+    <div className="space-y-8 pb-36 max-w-6xl mx-auto select-none">
+      {/* 1. Desktop Header Bar */}
+      <header className="hidden md:flex items-center justify-between pb-2 border-b border-white/[0.04]">
+        <div className="flex items-center gap-4">
+          <div
+            onClick={() => onNavigate('search')}
+            className="w-80 bg-[#141418] hover:bg-[#1a1a20] border border-white/[0.08] hover:border-white/[0.14] rounded-lg py-2 px-3 flex items-center gap-2.5 text-xs text-zinc-400 cursor-pointer transition-colors shadow-inner"
+          >
+            <Search className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Search tracks, artists, albums...</span>
           </div>
-          <span className="font-extrabold text-xl tracking-[0.16em] text-white">
-            VESPER
-          </span>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             title="Notifications"
-            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-4 h-4" />
           </button>
           <button
             onClick={() => openModal('profile')}
             title="User Profile"
-            className="w-9 h-9 rounded-full overflow-hidden border border-white/20 ring-2 ring-purple-500/20 active:scale-95 transition-transform cursor-pointer"
+            className="flex items-center gap-2.5 pl-1.5 pr-3 py-1 rounded-full bg-[#141418] hover:bg-[#1a1a20] border border-white/[0.08] transition-colors cursor-pointer"
           >
-            <img
-              src={
-                currentUser?.avatar ||
-                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'
-              }
-              alt="Profile"
-              className="w-full h-full object-cover grayscale"
-            />
+            <div className="w-6 h-6 rounded-full overflow-hidden bg-zinc-800">
+              <img
+                src={
+                  currentUser?.avatar ||
+                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'
+                }
+                alt={currentUser.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="text-xs font-medium text-zinc-200">
+              {currentUser.name}
+            </span>
           </button>
         </div>
       </header>
 
-      {/* 2. Greeting Section */}
-      <section className="space-y-1">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          {greeting}
-        </h2>
-        <p className="text-sm text-zinc-400">
-          Let's find something great to listen to.
-        </p>
-      </section>
-
-      {/* 3. Search Bar */}
-      <section>
-        <div
-          onClick={() => onNavigate('search')}
-          className="group w-full bg-[#16161c] hover:bg-[#1c1c24] border border-white/[0.08] hover:border-white/20 rounded-full py-3.5 px-4 flex items-center gap-3 text-sm text-zinc-400 cursor-pointer transition-all shadow-inner"
-        >
-          <Search className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors" />
-          <span className="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">
-            Search songs, artists, albums...
-          </span>
+      {/* 2. Editorial Greeting & Jump Back In Grid */}
+      <section className="space-y-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            {greeting}
+          </h1>
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            Pick up where you left off.
+          </p>
         </div>
-      </section>
 
-      {/* 4. "Continue Listening" Hero Card */}
-      <section>
-        <div
-          onClick={() => {
-            if (currentSong?.id === heroSong.id) {
-              togglePlay();
-            } else {
-              playSong(heroSong, [heroSong, ...quickPicks], 0);
-            }
-          }}
-          className="group relative rounded-3xl bg-gradient-to-br from-[#22132f]/90 via-[#181423] to-[#101015] border border-white/[0.08] hover:border-white/[0.18] p-5 shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden"
-        >
-          {/* Ambient background glow */}
-          <div className="absolute -top-10 -right-10 w-44 h-44 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
+        {/* High-density 2-row Jump Back In Shelf (authentic commercial design pattern) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          {jumpBackInSongs.map((song, idx) => {
+            const isThisPlaying = currentSong?.id === song.id && isPlaying;
+            return (
+              <div
+                key={`jump-${song.id}-${idx}`}
+                onClick={() => {
+                  if (currentSong?.id === song.id) {
+                    togglePlay();
+                  } else {
+                    playSong(song, jumpBackInSongs, idx);
+                  }
+                }}
+                className="group relative flex items-center gap-3 p-2 rounded-lg bg-[#141418]/60 hover:bg-[#1c1c24] border border-white/[0.05] hover:border-white/[0.12] transition-colors cursor-pointer overflow-hidden"
+              >
+                <div className="w-12 h-12 rounded-md overflow-hidden bg-zinc-900 flex-shrink-0 border border-white/[0.06]">
+                  <img
+                    src={song.artwork}
+                    alt={song.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
 
-          {/* Card Top Label Row */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-purple-600 flex items-center justify-center text-white shadow-sm shadow-purple-600/50">
-                <Play className="w-3 h-3 fill-white ml-0.5" />
-              </div>
-              <span className="text-sm font-semibold text-white tracking-tight">
-                Continue Listening
-              </span>
-            </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-white truncate leading-tight group-hover:text-purple-300 transition-colors">
+                    {cleanSongTitle(song.title)}
+                  </p>
+                  <p className="text-[11px] text-zinc-400 truncate mt-0.5">
+                    {song.artist}
+                  </p>
+                </div>
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                openModal('share_song', { song: heroSong });
-              }}
-              className="text-zinc-500 hover:text-white p-1 transition-colors"
-            >
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Card Body: Artwork + Details + Play Button */}
-          <div className="flex items-center gap-4">
-            {/* Artwork */}
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black flex-shrink-0 border border-white/10 shadow-lg">
-              <img
-                src={heroSong.artwork}
-                alt={heroSong.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-
-            {/* Song Meta & Progress */}
-            <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-lg font-bold text-white truncate group-hover:text-purple-300 transition-colors">
-                {heroSong.title}
-              </h3>
-              <p className="text-xs sm:text-sm text-zinc-400 truncate mt-0.5">
-                {heroSong.artist}
-              </p>
-              {heroSong.album && (
-                <p className="text-[11px] sm:text-xs text-zinc-500 truncate mt-0.5">
-                  {heroSong.album}
-                </p>
-              )}
-
-              {/* Progress Bar */}
-              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-3">
+                {/* Instant Hover Play Button */}
                 <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-300"
-                  style={{ width: `${heroProgress}%` }}
-                />
+                  className={`w-8 h-8 rounded-full bg-white text-black flex items-center justify-center mr-2 shadow-md transition-all flex-shrink-0 ${
+                    isThisPlaying
+                      ? 'opacity-100 scale-100 bg-purple-600 text-white'
+                      : 'opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0'
+                  }`}
+                >
+                  {isThisPlaying ? (
+                    <Pause className="w-3.5 h-3.5 fill-current" />
+                  ) : (
+                    <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                  )}
+                </div>
               </div>
-
-              {/* Time stamps */}
-              <p className="text-[11px] text-zinc-400 font-mono mt-1.5">
-                {formatHeroTime(heroCurrentTime)} / {formatHeroTime(heroDuration)}
-              </p>
-            </div>
-
-            {/* Big Circular Purple Play Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (currentSong?.id === heroSong.id) {
-                  togglePlay();
-                } else {
-                  playSong(heroSong, [heroSong, ...quickPicks], 0);
-                }
-              }}
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-purple-600 hover:bg-purple-500 active:scale-95 text-white flex items-center justify-center shadow-xl shadow-purple-600/40 transition-transform flex-shrink-0"
-            >
-              {isHeroPlaying ? (
-                <Pause className="w-5 h-5 fill-white text-white" />
-              ) : (
-                <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-              )}
-            </button>
-          </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* 5. "⚡ Quick Picks" Section: Horizontal Card Carousel (card - card - card) */}
+      {/* 3. Quick Picks Shelf */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 fill-purple-400 text-purple-400" />
-            <h3 className="text-lg font-bold text-white tracking-tight">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
               Quick Picks
-            </h3>
+            </h2>
+            <p className="text-xs text-zinc-400">
+              Curated tracks based on your taste
+            </p>
           </div>
           <button
             onClick={() => onNavigate('search')}
@@ -529,60 +435,28 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
           </button>
         </div>
 
-        {/* Horizontal Carousel of Cards (card - card - card) */}
-        <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar pb-2 pt-0.5 -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
-          {quickPicks.map((song, idx) => {
-            const isThisPlaying = currentSong?.id === song.id && isPlaying;
-
-            return (
-              <div
-                key={`qp-${song.id}-${idx}`}
-                onClick={() => playSong(song, quickPicks, idx)}
-                className="group cursor-pointer flex flex-col w-[105px] min-w-[105px] sm:w-[130px] sm:min-w-[130px] md:w-[150px] md:min-w-[150px] flex-shrink-0"
-              >
-                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#16161c] border border-white/[0.08] group-hover:border-white/20 transition-all duration-300 shadow-md">
-                  <img
-                    src={song.artwork}
-                    alt={song.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  {/* Subtle hover play overlay */}
-                  <div
-                    className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity ${
-                      isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                    }`}
-                  >
-                    <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-xl">
-                      {isThisPlaying ? (
-                        <Pause className="w-4 h-4 fill-white" />
-                      ) : (
-                        <Play className="w-4 h-4 fill-white ml-0.5" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <p className="font-semibold text-xs sm:text-sm text-white truncate mt-2 group-hover:text-purple-300 transition-colors">
-                  {cleanSongTitle(song.title)}
-                </p>
-                <p className="text-[11px] sm:text-xs text-zinc-400 truncate mt-0.5">
-                  {song.artist}
-                </p>
-              </div>
-            );
-          })}
+        <div className="flex gap-2 sm:gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {quickPicks.map((song, idx) => (
+            <SongCard
+              key={`qp-${song.id}-${idx}`}
+              song={song}
+              playlistContext={quickPicks}
+              index={idx}
+            />
+          ))}
         </div>
       </section>
 
-      {/* 6. "🕒 Recently Played" Section: REAL-TIME Horizontal Card Carousel (card - card - card) */}
+      {/* 4. Recently Played Shelf (Real-time synced) */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-pink-400" />
-            <h3 className="text-lg font-bold text-white tracking-tight">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
               Recently Played
-            </h3>
+            </h2>
+            <p className="text-xs text-zinc-400">
+              Your real-time listening history
+            </p>
           </div>
           <button
             onClick={() => onNavigate('library')}
@@ -592,100 +466,56 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
           </button>
         </div>
 
-        {/* Real-time Horizontal Carousel of Cards (card - card - card) */}
-        <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar pb-2 pt-0.5 -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
-          {recentlyPlayed.map((song, idx) => {
-            const isThisPlaying = currentSong?.id === song.id && isPlaying;
-
-            return (
-              <div
-                key={`rp-${song.id}-${idx}`}
-                onClick={() => playSong(song, recentlyPlayed, idx)}
-                className="group cursor-pointer flex flex-col w-[105px] min-w-[105px] sm:w-[130px] sm:min-w-[130px] md:w-[150px] md:min-w-[150px] flex-shrink-0"
-              >
-                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#16161c] border border-white/[0.08] group-hover:border-white/20 transition-all duration-300 shadow-md">
-                  <img
-                    src={song.artwork}
-                    alt={song.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  {/* Subtle hover play overlay */}
-                  <div
-                    className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity ${
-                      isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                    }`}
-                  >
-                    <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-xl">
-                      {isThisPlaying ? (
-                        <Pause className="w-4 h-4 fill-white" />
-                      ) : (
-                        <Play className="w-4 h-4 fill-white ml-0.5" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <p className="font-semibold text-xs sm:text-sm text-white truncate mt-2 group-hover:text-purple-300 transition-colors">
-                  {cleanSongTitle(song.title)}
-                </p>
-                <p className="text-[11px] sm:text-xs text-zinc-400 truncate mt-0.5">
-                  {song.artist}
-                </p>
-              </div>
-            );
-          })}
+        <div className="flex gap-2 sm:gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {recentlyPlayed.map((song, idx) => (
+            <SongCard
+              key={`rp-${song.id}-${idx}`}
+              song={song}
+              playlistContext={recentlyPlayed}
+              index={idx}
+            />
+          ))}
         </div>
       </section>
 
-      {/* 7. "💜 Made For You" Section: Horizontal Card Carousel (card - card - card) */}
+      {/* 5. Editorial "Made For You" Mixes */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 fill-purple-500 text-purple-500" />
-            <h3 className="text-lg font-bold text-white tracking-tight">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
               Made For You
-            </h3>
+            </h2>
+            <p className="text-xs text-zinc-400">
+              Custom mixes tailored to your listening moods
+            </p>
           </div>
-          <button
-            onClick={() => onNavigate('library')}
-            className="text-xs text-zinc-400 hover:text-white flex items-center gap-0.5 font-medium transition-colors"
-          >
-            See all <ChevronRight className="w-3.5 h-3.5" />
-          </button>
         </div>
 
-        {/* Horizontal Carousel of Mix Cards (card - card - card) */}
-        <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar pb-2 pt-0.5 -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {madeForYouMixes.map((mix) => (
             <div
               key={mix.id}
               onClick={() => handlePlayMix(mix)}
-              className={`group relative aspect-square w-[110px] min-w-[110px] sm:w-[135px] sm:min-w-[135px] md:w-[155px] md:min-w-[155px] flex-shrink-0 rounded-2xl p-2.5 sm:p-3 bg-gradient-to-br ${mix.gradient} border border-white/[0.08] hover:border-white/20 transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden shadow-lg hover:shadow-purple-900/20`}
+              className={`group relative rounded-xl p-3 bg-gradient-to-br ${mix.gradient} border border-white/[0.06] hover:border-white/[0.14] transition-all duration-200 cursor-pointer flex flex-col justify-between aspect-square`}
             >
-              {/* Background ambient soundwave watermark */}
-              <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity flex items-center justify-center pointer-events-none">
-                <Waves className="w-20 h-20 text-white" />
+              <div className="w-7 h-7 rounded-md bg-white/[0.08] flex items-center justify-center text-white/80">
+                <Sparkles className="w-3.5 h-3.5" />
               </div>
 
-              {/* Top Left: sound emblem */}
-              <div className="relative z-10">
-                <Sparkles className="w-4 h-4 text-white/70" />
-              </div>
+              <div>
+                <div className="flex items-end justify-between gap-1">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-white truncate">
+                      {mix.title}
+                    </p>
+                    <p className="text-[10px] text-zinc-400 truncate mt-0.5">
+                      {mix.subtitle}
+                    </p>
+                  </div>
 
-              {/* Bottom: Title, Subtitle, & Play Icon */}
-              <div className="relative z-10 flex items-end justify-between gap-1">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-bold text-white truncate leading-tight">
-                    {mix.title}
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-zinc-400 truncate mt-0.5">
-                    {mix.subtitle}
-                  </p>
-                </div>
-
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/10 group-hover:bg-purple-600 flex items-center justify-center text-white transition-colors flex-shrink-0 shadow-sm">
-                  <Play className="w-3 h-3 fill-white ml-0.5" />
+                  <div className="w-7 h-7 rounded-full bg-white text-black opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-md flex-shrink-0">
+                    <Play className="w-3 h-3 fill-current ml-0.5" />
+                  </div>
                 </div>
               </div>
             </div>

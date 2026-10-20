@@ -6,15 +6,12 @@ import {
   Heart,
   Settings,
   Plus,
-  Radio,
-  Sparkles,
   Compass,
-  Disc,
+  Music2,
 } from 'lucide-react';
 import { useAuthAndStorage } from '../../context/AuthAndStorageContext';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import { AeroXLogo } from '../common/AeroXLogo';
-import { NavSquircleIcon, NavIconType } from '../common/NavSquircleIcon';
 
 interface SidebarProps {
   currentView: string;
@@ -27,7 +24,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
-    { id: 'search', label: 'Search & Explore', icon: Compass },
+    { id: 'search', label: 'Search & Explore', icon: Search },
     { id: 'library', label: 'Your Library', icon: Library },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
@@ -35,90 +32,126 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
   return (
     <aside
       id="desktop-sidebar"
-      className="hidden md:flex flex-col w-64 lg:w-72 h-screen bg-black border-r border-white/[0.06] p-5 flex-shrink-0 z-30 select-none justify-between"
+      className="hidden md:flex flex-col w-60 lg:w-64 h-screen bg-[#0c0c0f] border-r border-white/[0.06] p-4 flex-shrink-0 z-30 select-none justify-between"
     >
       {/* Top Branding & Main Navigation */}
-      <div className="space-y-7">
+      <div className="space-y-6">
         {/* Brand Logo */}
         <div
           onClick={() => onNavigate('home')}
-          className="flex items-center gap-2.5 cursor-pointer group px-2"
+          className="flex items-center gap-2.5 cursor-pointer group px-2 pt-1"
         >
           <AeroXLogo size="md" />
-          <span className="font-semibold text-[17px] tracking-tight text-white group-hover:text-zinc-200 transition-colors">
+          <span className="font-semibold text-base tracking-tight text-white group-hover:text-zinc-200 transition-colors">
             AeroX
           </span>
         </div>
 
         {/* Main Navigation Links */}
-        <nav className="space-y-1.5">
-          {navItems.map(item => {
+        <nav className="space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
             const isActive = currentView === item.id;
             return (
               <button
                 key={item.id}
                 id={`nav-${item.id}`}
                 onClick={() => onNavigate(item.id)}
-                className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all group ${
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-purple-600/20 text-purple-200 border border-purple-500/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
+                    ? 'bg-white/[0.08] text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.03]'
                 }`}
               >
-                <NavSquircleIcon
-                  type={item.id as NavIconType}
-                  size="md"
-                  isActive={isActive}
+                <Icon
+                  className={`w-4 h-4 transition-colors ${
+                    isActive ? 'text-purple-400' : 'text-zinc-400'
+                  }`}
                 />
-                <span className={isActive ? 'text-white font-medium' : ''}>{item.label}</span>
+                <span>{item.label}</span>
               </button>
             );
           })}
         </nav>
 
         {/* Quick Liked Songs Button */}
-        <div className="pt-2">
+        <div>
           <button
             onClick={() => onNavigate('library')}
-            className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-gradient-to-r from-pink-900/20 to-purple-900/20 border border-pink-500/20 hover:border-pink-500/40 text-pink-200 transition-all font-semibold text-sm group"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/[0.03] transition-colors group"
           >
-            <div className="w-7 h-7 rounded-xl bg-pink-600/30 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
-              <Heart className="w-4 h-4 fill-pink-500" />
+            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white flex-shrink-0">
+              <Heart className="w-3.5 h-3.5 fill-white" />
             </div>
-            <span className="truncate">Liked Songs</span>
-            <span className="ml-auto text-xs text-pink-400 font-mono">
+            <span className="truncate flex-1 text-left">Liked Songs</span>
+            <span className="text-xs text-zinc-500 font-mono">
               {currentUser.favorites.length}
             </span>
           </button>
         </div>
 
         {/* User Playlists in Sidebar */}
-        <div className="space-y-2 pt-2 border-t border-white/5">
-          <div className="flex items-center justify-between px-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+        <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+          <div className="flex items-center justify-between px-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
               Playlists
             </span>
             <button
               onClick={() => openModal('create-playlist')}
               title="Create Playlist"
-              className="p-1 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+              className="p-1 rounded-md hover:bg-white/[0.06] text-zinc-400 hover:text-white transition-colors"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="space-y-1 max-h-48 overflow-y-auto no-scrollbar">
-            {currentUser.playlists.map(pl => (
-              <button
-                key={pl.id}
-                onClick={() => onNavigate('playlist', { id: pl.id })}
-                className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.03] transition-colors truncate block"
-              >
-                {pl.title}
-              </button>
-            ))}
+          <div className="space-y-0.5 max-h-56 overflow-y-auto no-scrollbar px-1">
+            {currentUser.playlists.length === 0 ? (
+              <p className="text-xs text-zinc-400 px-2 py-1">No playlists yet</p>
+            ) : (
+              currentUser.playlists.map((pl) => (
+                <button
+                  key={pl.id}
+                  onClick={() => onNavigate('playlist', { id: pl.id })}
+                  className="w-full text-left px-2.5 py-1.5 rounded-md text-xs text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-colors truncate block"
+                >
+                  {pl.title}
+                </button>
+              ))
+            )}
           </div>
         </div>
+      </div>
+
+      {/* Bottom User Profile Section */}
+      <div className="pt-3 border-t border-white/[0.06] mt-auto">
+        <button
+          onClick={() => openModal('profile')}
+          title="Open User Profile"
+          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all text-left group cursor-pointer"
+        >
+          <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 bg-zinc-800">
+            <img
+              src={
+                currentUser.avatar ||
+                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'
+              }
+              alt={currentUser.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-zinc-200 group-hover:text-white truncate">
+                {currentUser.name}
+              </span>
+            </div>
+            <p className="text-[10px] text-zinc-400 truncate">
+              Lossless Audio
+            </p>
+          </div>
+        </button>
       </div>
     </aside>
   );

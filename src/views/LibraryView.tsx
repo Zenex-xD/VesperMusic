@@ -10,7 +10,7 @@ interface LibraryViewProps {
   onNavigate: (view: string, params?: { id?: string }) => void;
 }
 
-type LibraryTab = 'playlists' | 'favorites' | 'history';
+type LibraryTab = 'favorites' | 'playlists' | 'history';
 
 export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
   const { currentUser, clearHistory } = useAuthAndStorage();
@@ -34,47 +34,47 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="space-y-8 pb-32 animate-in fade-in duration-300">
+    <div className="space-y-6 pb-36 max-w-5xl mx-auto select-none">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
             Your Library
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            Personal playlists, liked tracks, saved albums, and listening history.
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            Personal playlists, liked tracks, and listening history.
           </p>
         </div>
 
         <button
           onClick={() => openModal('create-playlist')}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-purple-600/30 transition-all self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition-colors self-start sm:self-auto shadow-sm"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5" />
           <span>New Playlist</span>
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-white/10 no-scrollbar">
+      {/* Segmented Navigation Tabs */}
+      <div className="flex items-center gap-1.5 border-b border-white/[0.06] pb-2">
         <button
           onClick={() => setActiveTab('favorites')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             activeTab === 'favorites'
-              ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30'
-              : 'text-zinc-400 hover:text-white'
+              ? 'bg-white/[0.1] text-white'
+              : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
           }`}
         >
-          <Heart className="w-3.5 h-3.5 fill-current" />
-          <span>Favorites ({favoriteSongs.length})</span>
+          <Heart className="w-3.5 h-3.5" />
+          <span>Liked Songs ({favoriteSongs.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('playlists')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             activeTab === 'playlists'
-              ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-              : 'text-zinc-400 hover:text-white'
+              ? 'bg-white/[0.1] text-white'
+              : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
           }`}
         >
           <ListMusic className="w-3.5 h-3.5" />
@@ -83,10 +83,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
 
         <button
           onClick={() => setActiveTab('history')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             activeTab === 'history'
-              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-              : 'text-zinc-400 hover:text-white'
+              ? 'bg-white/[0.1] text-white'
+              : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
           }`}
         >
           <Clock className="w-3.5 h-3.5" />
@@ -99,39 +99,43 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
         <div className="space-y-4">
           {favoriteSongs.length > 0 ? (
             <>
-              <div className="flex items-center gap-3">
+              {/* Play All Controls */}
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handlePlayAllFavorites}
-                  className="flex items-center gap-2 px-5 py-2 rounded-full bg-white text-black font-bold text-xs hover:bg-zinc-100"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs shadow-sm transition-colors"
                 >
                   <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                   <span>Play All</span>
                 </button>
                 <button
                   onClick={handleShuffleFavorites}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium text-xs"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#141418] hover:bg-[#1c1c24] border border-white/[0.06] text-zinc-300 hover:text-white font-medium text-xs transition-colors"
                 >
                   <Shuffle className="w-3.5 h-3.5" />
                   <span>Shuffle</span>
                 </button>
               </div>
 
-              <div className="space-y-1">
+              {/* Tracks List */}
+              <div className="divide-y divide-white/[0.03]">
                 {favoriteSongs.map((song, idx) => (
                   <SongRow
-                    key={`${song.id}-${song.youtubeId || ''}-${idx}`}
+                    key={`fav-${song.id}-${idx}`}
                     song={song}
                     index={idx}
                     playlistContext={favoriteSongs}
-                    onNavigateArtist={id => onNavigate('artist', { id })}
-                    onNavigateAlbum={id => onNavigate('album', { id })}
                   />
                 ))}
               </div>
             </>
           ) : (
-            <div className="py-20 text-center text-zinc-500 text-sm">
-              You haven't added any favorite songs yet. Click the heart on any track to save it here.
+            <div className="py-24 text-center">
+              <Heart className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+              <h3 className="text-sm font-semibold text-white">No Liked Songs Yet</h3>
+              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
+                Songs you favorite while listening will appear here for instant offline-like access.
+              </p>
             </div>
           )}
         </div>
@@ -139,20 +143,30 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
 
       {/* Tab 2: Playlists */}
       {activeTab === 'playlists' && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {currentUser.playlists.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {currentUser.playlists.map(pl => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {currentUser.playlists.map(playlist => (
                 <PlaylistCard
-                  key={pl.id}
-                  playlist={pl}
-                  onClick={() => onNavigate('playlist', { id: pl.id })}
+                  key={playlist.id}
+                  playlist={playlist}
+                  onClick={() => onNavigate('playlist', { id: playlist.id })}
                 />
               ))}
             </div>
           ) : (
-            <div className="py-20 text-center text-zinc-500 text-sm">
-              No custom playlists created yet. Click "New Playlist" above to start building your mix.
+            <div className="py-24 text-center">
+              <ListMusic className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+              <h3 className="text-sm font-semibold text-white">No Playlists Created</h3>
+              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto mb-4">
+                Create custom playlists to organize your favorite albums, vibes, and tracks.
+              </p>
+              <button
+                onClick={() => openModal('create-playlist')}
+                className="px-4 py-2 rounded-lg bg-white text-black font-semibold text-xs hover:bg-zinc-200 transition-colors"
+              >
+                Create Your First Playlist
+              </button>
             </div>
           )}
         </div>
@@ -165,22 +179,22 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-zinc-400">
-                  Last {currentUser.history.length} played tracks
+                  {currentUser.history.length} songs played recently
                 </span>
                 <button
                   onClick={clearHistory}
-                  className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 font-semibold"
+                  className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Clear History</span>
                 </button>
               </div>
 
-              <div className="space-y-1">
-                {currentUser.history.map((item, idx) => (
+              <div className="divide-y divide-white/[0.03]">
+                {currentUser.history.map((hist, idx) => (
                   <SongRow
-                    key={`${item.song.id}-${idx}`}
-                    song={item.song}
+                    key={`hist-row-${hist.song.id}-${idx}`}
+                    song={hist.song}
                     index={idx}
                     playlistContext={currentUser.history.map(h => h.song)}
                   />
@@ -188,8 +202,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
               </div>
             </>
           ) : (
-            <div className="py-20 text-center text-zinc-500 text-sm">
-              Your listening history is empty.
+            <div className="py-24 text-center">
+              <Clock className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+              <h3 className="text-sm font-semibold text-white">Listening History Empty</h3>
+              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
+                Play any track to start recording your personal listening trail.
+              </p>
             </div>
           )}
         </div>
