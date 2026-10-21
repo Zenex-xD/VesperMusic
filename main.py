@@ -516,6 +516,13 @@ if os.path.exists(dist_dir):
     if os.path.exists(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
+    @app.get("/")
+    async def serve_index():
+        index_path = os.path.join(dist_dir, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        return {"status": "ok", "message": "AeroX Music API Ready"}
+
     # Serve index.html for all client-side React routes
     @app.get("/{full_path:path}")
     async def catch_all(full_path: str):
