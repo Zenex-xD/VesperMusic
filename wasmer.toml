@@ -1,19 +1,19 @@
 [package]
 name = "aerox-music-app"
 version = "2.0.0"
-description = "AeroX Music Web App powered by FastAPI and React"
+description = "AeroX Music Web App"
 
 [dependencies]
-"wasmer/python" = "^3.12"
+"wasmer/static-web-server" = "^1"
 
 [[command]]
 name = "start"
-module = "wasmer/python:python"
+module = "wasmer/static-web-server:webserver"
 runner = "wasi"
 
 [command.annotations.wasi]
-env = ["PYTHONUNBUFFERED=1", "PORT=80"]
-main-args = ["main.py"]
+env = ["PORT=80"]
+main-args = ["-d", "/app/dist", "--page-fallback", "/app/dist/index.html"]
 
 [[fs]]
-"/app" = "."
+"/app/dist" = "./dist"

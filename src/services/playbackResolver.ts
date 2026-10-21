@@ -85,6 +85,32 @@ export class PlaybackResolver {
       console.warn('Playback resolution network error:', err);
     }
 
+    // 3.5 Client-side direct public YouTube search fallback (for Wasmer / static hosting)
+    try {
+      const cleanQ = encodeURIComponent(`${song.title} ${song.artist} audio`);
+      const endpoints = [
+        `https://vid.priv.au/api/v1/search?q=${cleanQ}&type=video`,
+        `https://invidious.jing.rocks/api/v1/search?q=${cleanQ}&type=video`,
+      ];
+      for (const url of endpoints) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 2200);
+          const iRes = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeout);
+          if (iRes.ok) {
+            const data = await iRes.json();
+            if (Array.isArray(data) && data.length > 0 && data[0].videoId) {
+              const vid = data[0].videoId;
+              resolvedPlaybackMap.set(key, vid);
+              this.persistCache();
+              return { playbackId: vid, playbackSource: 'youtube' };
+            }
+          }
+        } catch {}
+      }
+    } catch {}
+
     // 4. Fallback to direct streamUrl if available on the canonical track
     if (song.streamUrl && song.streamUrl.trim().length > 0) {
       return {

@@ -1,0 +1,8 @@
+[general]
+host = "0.0.0.0"
+port = 80
+root = "dist"
+page-fallback = "dist/index.html"
+directory-listing = false
+compression = true
+cache-control-headers = true
