@@ -83,19 +83,19 @@ export const DesktopPlayerBar: React.FC = () => {
       <div className="flex items-center gap-3 w-1/4 min-w-[220px]">
         {/* Ultra-lightweight Audio Visualizer Badge (Zero image payload) */}
         <div
-          className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#181820] to-[#0f0f14] border border-white/[0.08] flex-shrink-0 cursor-pointer group flex items-center justify-center shadow-sm hover:border-purple-500/40 transition-colors"
+          className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#1c1815] to-[#12100e] border border-orange-500/20 flex-shrink-0 cursor-pointer group flex items-center justify-center shadow-sm hover:border-orange-500/50 transition-colors"
           onClick={() => setIsFullScreenOpen(true)}
           title="Open Player Stage"
         >
           {isPlaying ? (
             <div className="flex items-end justify-center gap-[3px] h-5 w-6">
-              <span className="w-1 bg-purple-400 rounded-full animate-soundbar-1" />
-              <span className="w-1 bg-indigo-400 rounded-full animate-soundbar-2" />
-              <span className="w-1 bg-violet-300 rounded-full animate-soundbar-3" />
-              <span className="w-1 bg-purple-500 rounded-full animate-soundbar-4" />
+              <span className="w-1 bg-[#ea580c] rounded-full animate-soundbar-1" />
+              <span className="w-1 bg-[#f97316] rounded-full animate-soundbar-2" />
+              <span className="w-1 bg-[#fdba74] rounded-full animate-soundbar-3" />
+              <span className="w-1 bg-[#ea580c] rounded-full animate-soundbar-4" />
             </div>
           ) : (
-            <div className="w-6 h-6 rounded-full border border-purple-400/30 flex items-center justify-center text-purple-300">
+            <div className="w-6 h-6 rounded-full border border-orange-500/40 flex items-center justify-center text-orange-400">
               <span className="text-[10px] font-bold tracking-tighter">
                 {currentSong.title.charAt(0).toUpperCase() || '♪'}
               </span>
@@ -109,7 +109,7 @@ export const DesktopPlayerBar: React.FC = () => {
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5">
             <span
-              className="text-xs sm:text-sm font-medium text-zinc-100 hover:text-white transition-colors cursor-pointer truncate"
+              className="text-xs sm:text-sm font-medium text-zinc-100 hover:text-[#ea580c] transition-colors cursor-pointer truncate"
               onClick={() => setIsFullScreenOpen(true)}
             >
               {currentSong.title}
@@ -124,7 +124,7 @@ export const DesktopPlayerBar: React.FC = () => {
                 Retry
               </button>
             ) : currentSong.isLossless ? (
-              <span className="text-[9px] font-semibold px-1 py-0.2 rounded bg-white/[0.08] text-zinc-400 tracking-wider">
+              <span className="text-[9px] font-semibold px-1 py-0.2 rounded bg-orange-500/15 text-orange-300 tracking-wider">
                 LOSSLESS
               </span>
             ) : null}
@@ -139,10 +139,10 @@ export const DesktopPlayerBar: React.FC = () => {
           title="Favorite"
           onClick={() => toggleFavorite(currentSong.id)}
           className={`p-1.5 rounded-full hover:bg-white/[0.06] transition-colors ml-1 ${
-            favorited ? 'text-pink-500' : 'text-zinc-400 hover:text-zinc-200'
+            favorited ? 'text-[#ea580c]' : 'text-zinc-400 hover:text-zinc-200'
           }`}
         >
-          <Heart className={`w-4 h-4 ${favorited ? 'fill-pink-500' : ''}`} />
+          <Heart className={`w-4 h-4 ${favorited ? 'fill-[#ea580c]' : ''}`} />
         </button>
 
         <button
@@ -165,7 +165,7 @@ export const DesktopPlayerBar: React.FC = () => {
             title="Shuffle"
             onClick={toggleShuffle}
             className={`p-1.5 rounded-md hover:bg-white/[0.06] transition-colors ${
-              isShuffle ? 'text-purple-400' : 'text-zinc-400 hover:text-zinc-200'
+              isShuffle ? 'text-[#ea580c]' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             <Shuffle className="w-4 h-4" />
@@ -181,13 +181,13 @@ export const DesktopPlayerBar: React.FC = () => {
             <SkipBack className="w-4 h-4 fill-current" />
           </button>
 
-          {/* Play / Pause */}
+          {/* Play / Pause Hero Button */}
           {playbackError ? (
             <button
               id="player-play-toggle-btn"
               title="Retry Playback"
               onClick={retryPlayback}
-              className="w-9 h-9 rounded-full bg-amber-500 text-black hover:bg-amber-400 flex items-center justify-center transition-transform active:scale-95"
+              className="w-10 h-10 rounded-full bg-amber-500 text-black hover:bg-amber-400 flex items-center justify-center transition-transform active:scale-95"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -196,14 +196,14 @@ export const DesktopPlayerBar: React.FC = () => {
               id="player-play-toggle-btn"
               title={isPlaying ? 'Pause' : 'Play'}
               onClick={togglePlay}
-              className="w-9 h-9 rounded-full bg-white text-black hover:bg-zinc-200 flex items-center justify-center transition-transform active:scale-95 shadow-sm"
+              className="w-10 h-10 rounded-full bg-gradient-to-b from-[#ff7a50] to-[#ea580c] text-white flex items-center justify-center transition-transform active:scale-95 shadow-[0_6px_18px_rgba(234,88,12,0.45)] hover:scale-105"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 text-black animate-spin" />
+                <Loader2 className="w-4 h-4 text-white animate-spin" />
               ) : isPlaying ? (
-                <Pause className="w-4 h-4 fill-current" />
+                <Pause className="w-4 h-4 fill-white text-white" />
               ) : (
-                <Play className="w-4 h-4 fill-current ml-0.5" />
+                <Play className="w-4 h-4 fill-white text-white ml-0.5" />
               )}
             </button>
           )}
@@ -244,14 +244,14 @@ export const DesktopPlayerBar: React.FC = () => {
             {/* Background track */}
             <div className="w-full h-1 group-hover:h-1.5 bg-white/[0.12] rounded-full overflow-hidden transition-all">
               <div
-                className="h-full bg-zinc-200 group-hover:bg-purple-400 rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-[#ea580c] to-[#f97316] rounded-full transition-all"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
 
             {/* Slider thumb */}
             <div
-              className="absolute w-2.5 h-2.5 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none -translate-x-1/2 shadow-sm"
+              className="absolute w-2.5 h-2.5 rounded-full bg-[#ea580c] ring-2 ring-white/80 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none -translate-x-1/2 shadow-sm"
               style={{ left: `${progressPercent}%` }}
             />
 

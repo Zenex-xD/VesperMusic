@@ -1,27 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Search, X, Clock, Play } from 'lucide-react';
+import { Search, X, Clock, Trash2, ArrowUpRight } from 'lucide-react';
 import { musicService } from '../services/musicService';
-import { SearchResults, Song } from '../types/music';
-import { cleanSongTitle, formatDuration } from '../utils/formatters';
+import { SearchResults } from '../types/music';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { useAuthAndStorage } from '../context/AuthAndStorageContext';
 import { SongRow } from '../components/cards/SongCard';
-import { AlbumCard, ArtistCard, PlaylistCard } from '../components/cards/Cards';
+import { AlbumCard, ArtistCard } from '../components/cards/Cards';
 
 interface SearchViewProps {
   onNavigate: (view: string, params?: { id?: string }) => void;
 }
-
-const BROWSE_CATEGORIES = [
-  { name: 'Bollywood Hits', query: 'Bollywood Hits', bg: 'bg-amber-950/40 border-amber-800/30' },
-  { name: 'Punjabi Pop', query: 'Punjabi Hits', bg: 'bg-emerald-950/40 border-emerald-800/30' },
-  { name: 'Indian Indie', query: 'Indian Indie', bg: 'bg-sky-950/40 border-sky-800/30' },
-  { name: 'Romantic Hindi', query: 'Romantic Hindi', bg: 'bg-rose-950/40 border-rose-800/30' },
-  { name: 'Lo-Fi & Chill', query: 'Ambient Chill', bg: 'bg-violet-950/40 border-violet-800/30' },
-  { name: 'Global Top 50', query: 'Top Hits', bg: 'bg-blue-950/40 border-blue-800/30' },
-  { name: 'South & Tollywood', query: 'Tollywood Hits', bg: 'bg-orange-950/40 border-orange-800/30' },
-  { name: 'Acoustic Unplugged', query: 'Acoustic Hindi', bg: 'bg-teal-950/40 border-teal-800/30' },
-];
 
 export const SearchView: React.FC<SearchViewProps> = ({ onNavigate }) => {
   const [query, setQuery] = useState('');
@@ -114,71 +102,69 @@ export const SearchView: React.FC<SearchViewProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* 2. When query is empty: Recent searches & Browse Categories */}
+      {/* 2. When query is empty: Vertical Recent Searches List (Browse All removed) */}
       {!query.trim() ? (
-        <div className="space-y-7">
-          {/* Recent Searches */}
-          {searchHistory.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                  Recent Searches
-                </span>
-                <button
-                  onClick={() => {
-                    setSearchHistory([]);
-                    localStorage.removeItem('vesper_search_history');
-                  }}
-                  className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
-                >
-                  Clear all
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {searchHistory.map((item, idx) => (
-                  <button
-                    key={`hist-${idx}`}
-                    onClick={() => setQuery(item)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141418] hover:bg-[#1a1a22] border border-white/[0.06] text-xs text-zinc-300 hover:text-white transition-colors group"
-                  >
-                    <Clock className="w-3 h-3 text-zinc-400" />
-                    <span>{item}</span>
-                    <span
-                      onClick={(e) => clearHistoryItem(item, e)}
-                      className="p-0.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-zinc-200 transition-colors"
-                    >
-                      <X className="w-3 h-3" />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Browse Categories */}
-          <div className="space-y-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              Browse All
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-purple-400" />
+              Recent Searches
             </span>
+            {searchHistory.length > 0 && (
+              <button
+                onClick={() => {
+                  setSearchHistory([]);
+                  localStorage.removeItem('vesper_search_history');
+                }}
+                className="text-xs text-zinc-400 hover:text-red-400 transition-colors flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Clear all
+              </button>
+            )}
+          </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {BROWSE_CATEGORIES.map((cat, idx) => (
+          {searchHistory.length > 0 ? (
+            <div className="space-y-2">
+              {searchHistory.map((item, idx) => (
                 <div
-                  key={`cat-${idx}`}
-                  onClick={() => setQuery(cat.query)}
-                  className={`group relative h-20 rounded-xl p-3.5 border ${cat.bg} hover:border-white/20 transition-all cursor-pointer flex flex-col justify-between overflow-hidden`}
+                  key={`hist-${idx}`}
+                  onClick={() => setQuery(item)}
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-[#131318] hover:bg-[#1a1a24] border border-white/[0.05] hover:border-white/[0.1] transition-all cursor-pointer group"
                 >
-                  <span className="font-semibold text-sm text-white group-hover:translate-x-0.5 transition-transform">
-                    {cat.name}
-                  </span>
-                  <span className="text-[10px] text-zinc-400">
-                    Explore curated
-                  </span>
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <div className="w-9 h-9 rounded-lg bg-white/[0.04] group-hover:bg-purple-500/10 flex items-center justify-center flex-shrink-0 transition-colors">
+                      <Clock className="w-4 h-4 text-zinc-400 group-hover:text-purple-400 transition-colors" />
+                    </div>
+                    <span className="text-sm font-medium text-zinc-200 group-hover:text-white truncate transition-colors">
+                      {item}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="p-1 text-zinc-500 group-hover:text-purple-400 opacity-60 group-hover:opacity-100 transition-all">
+                      <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </div>
+                    <button
+                      onClick={(e) => clearHistoryItem(item, e)}
+                      title="Remove from history"
+                      className="p-1.5 rounded-lg hover:bg-white/10 text-zinc-500 hover:text-zinc-200 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
-          </div>
+          ) : (
+            <div className="py-16 text-center rounded-2xl bg-[#131318]/50 border border-white/[0.04]">
+              <Clock className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+              <p className="text-sm text-zinc-400 font-medium">No recent searches</p>
+              <p className="text-xs text-zinc-600 mt-1">
+                Type song, artist, or album name above to start listening.
+              </p>
+            </div>
+          )}
         </div>
       ) : loading ? (
         <div className="py-20 text-center text-xs text-zinc-500 animate-pulse">

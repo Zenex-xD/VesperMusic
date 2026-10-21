@@ -32,16 +32,16 @@ export const MobileBottomPlayer: React.FC = () => {
       <div className="relative rounded-xl bg-[#141418]/95 backdrop-blur-md border border-white/[0.08] p-2 shadow-xl flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-all overflow-hidden">
         {/* Left: Lightweight Audio Indicator + Title + Artist */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#181820] to-[#0f0f14] border border-white/[0.08] flex items-center justify-center shadow-inner">
+          <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#1c1815] to-[#12100e] border border-orange-500/20 flex items-center justify-center shadow-inner">
             {isPlaying ? (
               <div className="flex items-end justify-center gap-[2px] h-4 w-5">
-                <span className="w-0.5 bg-purple-400 rounded-full animate-soundbar-1" />
-                <span className="w-0.5 bg-indigo-300 rounded-full animate-soundbar-2" />
-                <span className="w-0.5 bg-violet-400 rounded-full animate-soundbar-3" />
-                <span className="w-0.5 bg-purple-500 rounded-full animate-soundbar-4" />
+                <span className="w-0.5 bg-[#ea580c] rounded-full animate-soundbar-1" />
+                <span className="w-0.5 bg-[#f97316] rounded-full animate-soundbar-2" />
+                <span className="w-0.5 bg-[#fdba74] rounded-full animate-soundbar-3" />
+                <span className="w-0.5 bg-[#ea580c] rounded-full animate-soundbar-4" />
               </div>
             ) : (
-              <div className="w-5 h-5 rounded-full border border-purple-400/30 flex items-center justify-center text-purple-300">
+              <div className="w-5 h-5 rounded-full border border-orange-500/40 flex items-center justify-center text-orange-400">
                 <span className="text-[9px] font-bold">
                   {currentSong.title.charAt(0).toUpperCase() || '♪'}
                 </span>
@@ -82,14 +82,14 @@ export const MobileBottomPlayer: React.FC = () => {
               id="mobile-play-toggle-btn"
               title={isPlaying ? 'Pause' : 'Play'}
               onClick={togglePlay}
-              className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow transition-transform active:scale-90"
+              className="w-8 h-8 rounded-full bg-gradient-to-b from-[#ff7a50] to-[#ea580c] text-white flex items-center justify-center shadow-[0_4px_12px_rgba(234,88,12,0.4)] transition-transform active:scale-90"
             >
               {isLoading ? (
-                <Loader2 className="w-3.5 h-3.5 text-black animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
               ) : isPlaying ? (
-                <Pause className="w-3.5 h-3.5 fill-current" />
+                <Pause className="w-3.5 h-3.5 fill-white text-white" />
               ) : (
-                <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
               )}
             </button>
           )}
@@ -107,7 +107,7 @@ export const MobileBottomPlayer: React.FC = () => {
         {/* Progress bar directly along the bottom of the card */}
         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/[0.08]">
           <div
-            className="h-full bg-purple-500 transition-all duration-200"
+            className="h-full bg-gradient-to-r from-[#ea580c] to-[#f97316] transition-all duration-200"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

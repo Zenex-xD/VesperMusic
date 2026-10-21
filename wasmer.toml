@@ -1,0 +1,18 @@
+[package]
+name = "aerox-music-app"
+version = "2.0.0"
+description = "AeroX Music Web App powered by FastAPI and React"
+
+[dependencies]
+"python/python" = "3.10"
+
+[[command]]
+name = "server"
+module = "python/python:python"
+runner = "wasi"
+
+[command.annotations.wasi]
+env = ["PYTHONUNBUFFERED=1", "PORT=80"]
+
+[[fs]]
+"/app" = "."
