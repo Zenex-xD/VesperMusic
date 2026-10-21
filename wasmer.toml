@@ -4,15 +4,16 @@ version = "2.0.0"
 description = "AeroX Music Web App powered by FastAPI and React"
 
 [dependencies]
-"python/python" = "3.10"
+"wasmer/python" = "^3.12"
 
 [[command]]
-name = "server"
-module = "python/python:python"
+name = "start"
+module = "wasmer/python:python"
 runner = "wasi"
 
 [command.annotations.wasi]
 env = ["PYTHONUNBUFFERED=1", "PORT=80"]
+main-args = ["main.py"]
 
 [[fs]]
 "/app" = "."
